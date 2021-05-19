@@ -18,13 +18,13 @@ Check gradescope for due date(s).
 Watch here for answers to FAQs and notifications about important updates.
 
 1. Noted that the fully-tiled implementation of `fc_layer_t::activate()` is already present in the starter code.  You don't need to add it.
-2. Removed references to `README.pdf`.  Using `README1.pdf` instead.
+2. Updated docker image version to 181.
 
 ## Integrated Worksheet and README
 
 **READ THIS CAREFULLY**
 
-`README1.pdf`, `README2.pdf`, and `README3.pdf` are both the lab instructions and your worksheet for the lab. You should use the provided PDFs to fill in your answers for this lab.  **You should not generate your own pdf**, since the formatting may not match.
+`README.pdf`, `README2.pdf`, and `README3.pdf` are both the lab instructions and your worksheet for the lab. You should use the provided PDFs to fill in your answers for this lab.  **You should not generate your own pdf**, since the formatting may not match.
 
 As bugs are found in the lab, we may update `README*.md`.   We **will not** update `README*.pdf` so we can ensure that everyone is using the same `README*.pdf` to submit answers.
 
@@ -104,7 +104,7 @@ The directory also contains `matmul.cpp` which is the the code I used for the it
 
 ## Software You Will Need
 
-1. A computer with Docker installed (either the cloud docker container via ssh, or your own laptop).  See the intro lab for details.  You'll need docker image `ucsdnvsl/cse141pp:sp21.180`.
+1. A computer with Docker installed (either the cloud docker container via ssh, or your own laptop).  See the intro lab for details.  You'll need docker image `ucsdnvsl/cse141pp:sp21.181`.
 2. The lab for the github classroom assignment for this lab.  Find the link on the course home page: https://github.com/CSE141pp/Home/.
 3. A PDF annotator/editor to fill out the worksheets.
 
