@@ -48,7 +48,7 @@ examples.csv: examples.exe
 	pretty-csv $@
 
 run_tests.exe:  $(BUILD)parameters.o 
-$(BUILD)run_tests.o: $(BUILD)opt_cnn.hpp  $(BUILD)parameters.hpp
+run_tests.o: $(BUILD)opt_cnn.hpp  $(BUILD)parameters.hpp
 
 .PHONY: regressions.out
 regressions.out regressions.json: ./run_tests.exe

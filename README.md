@@ -19,6 +19,7 @@ Watch here for answers to FAQs and notifications about important updates.
 
 1. Noted that the fully-tiled implementation of `fc_layer_t::activate()` is already present in the starter code.  You don't need to add it.
 2. Updated docker image version to 181.
+3. Fixed 'make regressions.out'
 
 ## Integrated Worksheet and README
 
