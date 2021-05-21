@@ -23,6 +23,7 @@ class ThisLab(CSE141Lab):
                                CMD_LINE_ARGS="Command line arguments for `make cnn.csv`",
                                OMP_NUM_THREADS="<thread count>",
                                IMPL_SEL_ARGS="Command line options that select which implementation to use/test",
+                               MICROBENCH_CMD_LINE_ARGS="command line for example",
                                AUTO_VEC="yes|no"),
             repo = kwargs.get("repo") or "https://github.com/NVSL/CSE141pp-Lab-FinalProject.git",
             reference_tag = kwargs.get("repo") or "master",

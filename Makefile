@@ -43,8 +43,8 @@ custom.csv: custom.exe
 	pretty-csv $@
 	if [ -e gmon.out ]; then gprof $< > custom.gprof; fi
 
-examples.csv: examples.exe
-	./examples.exe --stats-file $@
+microbench.csv: microbench.exe
+	./microbench.exe --stats-file $@ $(MICROBENCH_CMD_LINE_ARGS)
 	pretty-csv $@
 
 run_tests.exe:  $(BUILD)parameters.o 
