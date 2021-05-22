@@ -18,14 +18,50 @@ Check gradescope for due date(s).
 Watch here for answers to FAQs and notifications about important updates.
 
 1. Noted that the fully-tiled implementation of `fc_layer_t::activate()` is already present in the starter code.  You don't need to add it.
-2. Updated docker image version to 181.
-3. Fixed 'make regressions.out'
+2. Removed references to `README.pdf`.  Using `README1.pdf` instead.
+3. Updated docker image version to 181.
+4. Modified P5 to give bounds on the tile sizes space you should explore.
+5. Add section about gathering traces for your functions with Moneta.
+6. Add note about autograder output from `runlab`.
+7. Added some clarification about P4 and P5.
+  
+## Note About Output from `runlab`
+
+Many of you have found the new autograde output from `runlab` to be confusing.  It looks like this
+
+```
+#####################################################################################
+Autograder results
+#####################################################################################
+
+test_50_canary_key (private.ThisLab.GradedRegressions)
+	Max score: 0.0 	 Your score: 0.0
+     The machine this job ran on is behaving normally.
+
+test_82_training_speedup_key (private.ThisLab.GradedRegressions)
+	Max score: 31 	 Your score: 0.0
+     Test Failed: The autograder will not evaluate your code's performance on train_model() until all the
+     regressions pass.
+
+#####################################################################################
+Unless you are reading this on gradescope, these grades have not been recorded.
+You must submit via gradescope to get credit.
+#####################################################################################
+```
+
+It shows on every run, but it's really only meaningful if you were doing
+
+```
+runlab --run-git-remotely
+```
+
+I can't really fix it in a non-invasive way, so I've just removed the output.  This means you'll need to either run your code through Gradescope to get your actual grade.
 
 ## Integrated Worksheet and README
 
 **READ THIS CAREFULLY**
 
-`README.pdf`, `README2.pdf`, and `README3.pdf` are both the lab instructions and your worksheet for the lab. You should use the provided PDFs to fill in your answers for this lab.  **You should not generate your own pdf**, since the formatting may not match.
+`README1.pdf`, `README2.pdf`, and `README3.pdf` are both the lab instructions and your worksheet for the lab. You should use the provided PDFs to fill in your answers for this lab.  **You should not generate your own pdf**, since the formatting may not match.
 
 As bugs are found in the lab, we may update `README*.md`.   We **will not** update `README*.pdf` so we can ensure that everyone is using the same `README*.pdf` to submit answers.
 
@@ -505,6 +541,74 @@ If you have to break up your jobs into smaller batches, you can use `merge-csv` 
 
 Sorry for the hassle, but this is one of the artificial contraints we face in a course setting.
 
+## Use This Weird Trick To Gather Traces with Moneta
+
+To gather traces with Moneta for a particular function, follow this recipe:
+
+1.  Configure `config.env` with the option you want to test (E.g., to test `activate` for `fc_layer_t`, do `--function activate --test-layer 14` -- '14' because layer 14 is an an `fc_layer_t`).
+2.  Then, use this wierd trick to get the a good starting point for the command like to run:  `make -n cnn.csv`.  The `-n` tell `make` to just say what it will do rather than actually do it.
+
+You'll get something like this:
+
+```
+sjswanson@sjswanson-24965:~/sp21-CSE142L-final-starter$ make -n cnn.csv
+NOTE     You already have credential caching enabled.
+NOTE     You already have credential caching enabled.
+/course/cse141pp-archlab/cse141.make:23: build/config.env: No such file or directory
+mkdir -p build/
+cp config.env build/config.env
+NOTE     You already have credential caching enabled.
+NOTE     You already have credential caching enabled.
+mkdir -p build/
+cp opt_cnn.hpp build/opt_cnn.hpp
+mkdir -p build/
+cp canary.hpp build/canary.hpp
+mkdir -p build/
+cp model.hpp build/model.hpp
+mkdir -p build/
+cp reps.hpp build/reps.hpp
+mkdir -p build/
+cp parameters.hpp build/parameters.hpp
+mkdir -p build/
+cp cnn.cpp build/cnn.cpp
+g++-8 -c -Wall -Werror -g  -O3 -pg   -I/course/cse141pp-archlab/pcm -pthread -fopenmp -I/course/cse141pp-archlab/libarchlab -I/course/cse141pp-archlab -I/usr/local/include -I/googletest/googletest/include -I/course/CSE141pp-SimpleCNN  -Ibuild/  -I/home/jovyan/work/moneta/    -std=gnu++11  build/cnn.cpp -o build/cnn.o
+mkdir -p build/
+cp parameters.cpp build/parameters.cpp
+g++-8 -c -Wall -Werror -g  -O3 -pg   -I/course/cse141pp-archlab/pcm -pthread -fopenmp -I/course/cse141pp-archlab/libarchlab -I/course/cse141pp-archlab -I/usr/local/include -I/googletest/googletest/include -I/course/CSE141pp-SimpleCNN  -Ibuild/  -I/home/jovyan/work/moneta/    -std=gnu++11  build/parameters.cpp -o build/parameters.o
+mkdir -p build/
+cp model.cpp build/model.cpp
+g++-8 -S -c -Wall -Werror -g  -O3 -pg   -I/course/cse141pp-archlab/pcm -pthread -fopenmp -I/course/cse141pp-archlab/libarchlab -I/course/cse141pp-archlab -I/usr/local/include -I/googletest/googletest/include -I/course/CSE141pp-SimpleCNN  -Ibuild/  -I/home/jovyan/work/moneta/    -std=gnu++11  -g0 build/model.cpp -o build/model.s
+as   -o build/model.o build/model.s
+mkdir -p build/
+cp canary.cpp build/canary.cpp
+g++-8 -c -Wall -Werror -g  -O3 -pg   -I/course/cse141pp-archlab/pcm -pthread -fopenmp -I/course/cse141pp-archlab/libarchlab -I/course/cse141pp-archlab -I/usr/local/include -I/googletest/googletest/include -I/course/CSE141pp-SimpleCNN  -Ibuild/  -I/home/jovyan/work/moneta/    -std=gnu++11  build/canary.cpp -o build/canary.o
+mkdir -p build/
+cp reps.cpp build/reps.cpp
+g++-8 -c -Wall -Werror -g  -O3 -pg   -I/course/cse141pp-archlab/pcm -pthread -fopenmp -I/course/cse141pp-archlab/libarchlab -I/course/cse141pp-archlab -I/usr/local/include -I/googletest/googletest/include -I/course/CSE141pp-SimpleCNN  -Ibuild/  -I/home/jovyan/work/moneta/    -std=gnu++11  build/reps.cpp -o build/reps.o
+g++-8 build/cnn.o build/parameters.o build/model.o build/canary.o build/reps.o   -pg -pthread  -L/usr/local/lib -L/course/cse141pp-archlab/libarchlab -L/course/cse141pp-archlab/pcm -larchlab -lpcm -lpapi -lboost_program_options -lgomp  -o cnn.exe
+rm -f gmon.out
+./cnn.exe --stats-file cnn.csv  --function activate --test-layer 14
+pretty-csv cnn.csv
+if [ -e gmon.out ]; then gprof cnn.exe > cnn.gprof; fi
+```
+
+The line you need is at the bottom: 
+
+```
+./cnn.exe --stats-file cnn.csv  --function activate --test-layer 14
+```
+
+That's what will run in the cloud, and it'll run for a few seconds.  To get a trace, add `--scale 0` and invoke it with `mtrace`:
+
+```
+mtrace --main none -- ./cnn.exe --stats-file cnn.csv  --function activate --test-layer 14 --scale 0
+```
+
+The `--main none` turns off tracing by default.  It will start when your code calls `START_TRACE()`.
+
+By default, the trace will end up in `trace_0.{hdf5,tags,meta,stats}`.  Open it in the Moneta viewer and
+enjoy!
+
 ## Changes to Moneta
 
 ### Selecting Traces
@@ -581,6 +685,8 @@ Examine the output in `benchmark.gprof` and answer the following:
 
 In the starter code you'll find an implemententation of `fc_layer_t::activate` that tiles all three loops based on the iteration space analysis I did during the lecture for the lab.
 
+**Note** This means you should look at the table in the slides and select the tile sizes that, according to my analysis, would provide the lowest cache miss rate.  That is the implementation you should mesaure in P3 and P4 below.  You don't need to run multiple experiments to compare different tile sizes for those problems.  You'll do that in P5.
+
 Compare the performance of the resulting code to the original code in `fc_layer_t.hpp` (i.e, `fc_layer_t::activate`) on layer 14 of the model. You should get a speedup of 9-10x.
 
 Use the `--param*` command line options to do this in one run.  
@@ -599,16 +705,15 @@ IMPL_SEL_ARGS:
 #### P4 (1pt) Note down the both execution times, and calculate the speedup
 
 ```
-
 Original execution time:
 
-Optimised execution time:
+Optimized execution time:
 
 Speedup:
 
 ```
 
-#### P5 (4pt) Use `--param*` to explore the range of tiling sizes for `activate()`.  Draw a graph that shows the impact on execution time of tiling `I` and `N` at different sizes.  Make sure it is clearly labeled legible.  You are plotting execution time against two variables, so you will need to account for that in the graph.
+#### P5 (4pt) Use `--param*` to explore the range of tiling sizes for `activate()`.  Draw a graph that shows the impact on execution time of tiling `I` and `N` at tile sizes from 1 to 128 (all combinations).  Make sure it is clearly labeled legible.  You are plotting execution time against two variables, so you will need to account for that in the graph.
 
 ```
 
