@@ -25,7 +25,7 @@ public:
 	}
 
 #define FC_ACTIVATE_IMPLEMENTATION g_param1_value
-//#define FC_ACTIVATE_IMPLEMENTATION 1
+// #define FC_ACTIVATE_IMPLEMENTATION 1
 //#define CALC_GRADS_IMPLEMENTATION g_param1_value
 
 	void activate( tensor_t<double>& in ) {
@@ -91,9 +91,12 @@ public:
 			}
 		}
 
-#define I_TILE_SIZE g_param2_value
-#define Y_TILE_SIZE g_param3_value
-#define N_TILE_SIZE g_param4_value
+// #define I_TILE_SIZE g_param2_value
+// #define Y_TILE_SIZE g_param3_value
+// #define N_TILE_SIZE g_param4_value
+#define I_TILE_SIZE 16
+#define Y_TILE_SIZE 32
+#define N_TILE_SIZE 4 
 
 		for ( int nn = 0; nn < out.size.x; nn+=N_TILE_SIZE ) {
 			for ( int ii = 0; ii < in.size.x; ii += I_TILE_SIZE) {
