@@ -15,7 +15,7 @@ class ThisLab(CSE141Lab):
         super(ThisLab, self).__init__(
             lab_name = "Final",
             short_name = "final",
-            output_files = ['*.csv', '*.gprof', '*.s', 'regressions.out'],
+            output_files = ['*.csv', '*.gprof', '*.s', 'regressions.*', 'results.json'],
             input_files = ['opt_cnn.hpp', 'config.env'],
             default_cmd = ['make'],
             valid_options=dict(OPENMP="yes|no",
