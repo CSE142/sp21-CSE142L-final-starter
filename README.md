@@ -23,7 +23,7 @@ Watch here for answers to FAQs and notifications about important updates.
 4. Modified P5 to give bounds on the tile sizes space you should explore.
 5. Add section about gathering traces for your functions with Moneta.
 6. Add note about autograder output from `runlab`.
-7. Added some clarification about P4 and P5.
+7. Added some clarification about P3-P6.
   
 ## Note About Output from `runlab`
 
@@ -685,7 +685,7 @@ Examine the output in `benchmark.gprof` and answer the following:
 
 In the starter code you'll find an implemententation of `fc_layer_t::activate` that tiles all three loops based on the iteration space analysis I did during the lecture for the lab.
 
-**Note** This means you should look at the table in the slides and select the tile sizes that, according to my analysis, would provide the lowest cache miss rate.  That is the implementation you should mesaure in P3 and P4 below.  You don't need to run multiple experiments to compare different tile sizes for those problems.  You'll do that in P5.
+**Note** This means you should look at the table in the slides and select the tile sizes that, according to my analysis, would provide the lowest cache miss rate.  That is the implementation you should mesaure in P3 and P4 below.  You don't need to run multiple experiments to compare different tile sizes for those problems.  You'll do that in P5 and P6.
 
 Compare the performance of the resulting code to the original code in `fc_layer_t.hpp` (i.e, `fc_layer_t::activate`) on layer 14 of the model. You should get a speedup of 9-10x.
 
