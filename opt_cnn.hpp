@@ -123,11 +123,13 @@ public:
 		out.size = old_out_size;
 	}
 
-	// This is as a starting point for your work on this lab.  If
-	// your solution from the prior lab is better, feel free to
-	// use it.
-#define BLOCK_SIZE 4	
 	void calc_grads( const tensor_t<double>& grad_next_layer ) {
+		calc_grads_thread_baseline(grad_next_layer);
+	}
+			
+	// This is as a starting point for your work on this lab.
+#define BLOCK_SIZE 4	
+	void calc_grads_thread_baseline( const tensor_t<double>& grad_next_layer ) {
 		
 		memset( grads_out.data, 0, grads_out.size.x * grads_out.size.y * grads_out.size.z * sizeof( double ) );
 		
