@@ -9,7 +9,8 @@ This portion of the project is about multi-threading.  We will be using [OpenMP]
 Watch here for answers to FAQs and notifications about important updates.
 
 1.  Specified function names for each of the threading strategies to make it clearer what you should measure.
-2.  Fixed line numbers reference to `stabilize.cpp`
+2.  Fixed line numbers reference to `stabilize.cpp`.
+3.  Add instructions for fixing the loop bound on  `calc_grads_thread_baseline_nn`.
  
 ## New Command `--run-by-proxy`
 
@@ -119,7 +120,29 @@ Modify `calc_grads_thread_baseline_b()` to add multithreading to the `b` loop an
 
 #### Implement  calc_grads_thread_baseline_n()
 
-Modify `calc_grads_thread_baseline_n()` to add multithreading to the `n` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `n` for loop. When your code finishes running, you will notice that you failed multiple regression tests. This is because by parallelizing the `n` loop, multiple threads attempt to write to the same location in `grads_out`.
+Modify `calc_grads_thread_baseline_n()` to add multithreading to the `n` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `n` for loop.
+
+Compile the code locally with `make cnn.exe`, and you will probably get a cryptic error like:
+
+```
+build/opt_cnn.hpp:309:5: error: invalid controlling predicate
+     for ( int n = nn; n < nn + BLOCK_SIZE && n < out.size.x; n++ ) 
+```
+
+This is because gcc's OpenMP implementation doesn't like the loop condition because it can't figure out the loop bound ahead of time.
+
+Rewrite the code like this to make it clear that the loop bound is constant.
+
+```
+     int minn = std::min(nn + BLOCK_SIZE, out.size.x);
+#pragma omp parallel for
+     for ( int n = nn; n < minn; n++ ) {
+...
+```
+
+It should build.
+
+When your code finishes running, you will notice that you failed multiple regression tests. This is because by parallelizing the `n` loop, multiple threads attempt to write to the same location in `grads_out`.
 
 We will fix this in two stages:
 
