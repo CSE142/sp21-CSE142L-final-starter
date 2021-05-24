@@ -103,15 +103,15 @@ Modify `calc_grads_thread_baseline_nn()` to add multithreading to the `nn` loop 
 
 We will fix this in two stages:
 
-**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `nn` for loop. You can see an example of this in `example/stabilize.cpp` line 395. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`. Do not forget to clear it just like the example does on line 339. Then, in the inner most loop (the `i` loop), change `grads_out` to be your new local tensor that each thread will create.
+**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `nn` for loop. You can see an example of this in `example/stabilize.cpp` line 395. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`. Do not forget to clear it just like the example does on line 396. Then, in the inner most loop (the `i` loop), change `grads_out` to be your new local tensor that each thread will create.
 
 This enables each thread to accumulate their results locally. Thereby eliminating the race condition causing errors. However, we now need to combine the results from each thread.
 
 **Stage 2** At the bottom of the `nn` for loop, add a critical section and create two nested for loops to loop through `out.size.b` and `grads_out.size.x`. Notice that we don't loop through `out.size.x` as well. This is because we only need to accumulate the results into `grads_out` and `n` is not used to index into `grads_out`. 
 
-Inside the nested for loop you just created, accumulate the results of each thread (stored in their local tensors you creaded in stage 1) into `grads_out`. This will look very similar to `example/stabilize.cpp` lines 361 - 369. 
+Inside the nested for loop you just created, accumulate the results of each thread (stored in their local tensors you creaded in stage 1) into `grads_out`. This will look very similar to `example/stabilize.cpp` lines 419-426. 
 
-Once you have made your changes, run the code locally and verify that you pass all 21 regression tests. If you do not pass, refer back to the lecture slides, discussion slides, example in `exmaple/stabilize.cpp` lines 330 - 372, and help from the staff during office hours or lab hours. Once you have verified that your code is correct and passes the regression tests, submit to the autograder. You will want to save the resulting benchmark.csv file for the worksheet.
+Once you have made your changes, run the code locally and verify that you pass all the regression tests. If you do not pass, refer back to the lecture slides, discussion slides, example in `example/stabilize.cpp` lines 393 - 430, and help from the staff during office hours or lab hours. Once you have verified that your code is correct and passes the regression tests, submit to the autograder. You will want to save the resulting benchmark.csv file for the worksheet.
 
 #### Implement calc_grads_thread_baseline_b()
 
@@ -123,13 +123,13 @@ Modify `calc_grads_thread_baseline_n()` to add multithreading to the `n` loop an
 
 We will fix this in two stages:
 
-**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `n` for loop. You can see an example of this in `exmaple/stabilize.cpp` line 338. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`. Do not forget to clear it just like the example does on line 339. Then, in the inner most loop (the `i` loop), change `grads_out` to be your new local tensor that each thread will create.
+**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `n` for loop. You can see an example of this in `exmaple/stabilize.cpp` line 395. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`. Do not forget to clear it just like the example does on line 396. Then, in the inner most loop (the `i` loop), change `grads_out` to be your new local tensor that each thread will create.
 
 This enables each thread to accumulate their results locally. Thereby eliminating the race condition causing errors. However, we now need to combine the results from each thread.
 
 **Stage 2** At the bottom of the `n` for loop, add a critical section and create a for loops to loop through `grads_out.size.x`. Notice that we don't loop through `out.size.x` or `out.size.b` as well. We exclude `out.size.x` because we only need to accumulate the results into `grads_out` and `n` is not used to index into `grads_out`. We exclude `out.size.b` because we only need to accumulate the result that the threads were individually working on, and they were all already working on the same `b` because we multithreaded the `n` loop, which is inside the `b` loop. 
 
-Inside the for loop you just created, accumulate the results of each thread (stored in their local tensors you creaded in stage 1) into `grads_out`. This will look very similar to `exmaple/stabilize.cpp` lines 361 - 369. 
+Inside the for loop you just created, accumulate the results of each thread (stored in their local tensors you creaded in stage 1) into `grads_out`. This will look very similar to `exmaple/stabilize.cpp` lines 419-426. 
 
 #### Implement calc_grads_thread_baseline_i()
 
