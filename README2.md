@@ -15,6 +15,7 @@ Watch here for answers to FAQs and notifications about important updates.
 5.  Clarified several of the questions.
 6.  Update to `Makefile` to make regressions work properly.
 7.  Fixed typo on P6 about which problems to look at. 
+8.  Added note about running `make cnn.exe` to build the executable to generate Moneta traces.
 
 ## New Command `--run-by-proxy`
 
@@ -287,7 +288,7 @@ Best Thread count:
 
 ```
 
-Generate a Moneta trace for each implementation running with 4 threads.   You can use the same command line options you used above except:
+Generate a Moneta trace for each implementation running with 4 threads.   Run `make cnn.exe` to build the executable so you can run it locally.  You can use the same command line options you used above except:
 
 1. Set `--scale 0` to `cnn.exe` (i.e., after the `--`) so the function executes exactly once.
 2. Pass `--main none` to `mtrace` (i.e., before the `--`) so `mtrace` won't start tracing until we call `START_TRACE()`.
