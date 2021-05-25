@@ -11,6 +11,8 @@ Watch here for answers to FAQs and notifications about important updates.
 1.  Specified function names for each of the threading strategies to make it clearer what you should measure.
 2.  Fixed line numbers reference to `stabilize.cpp`.
 3.  Add instructions for fixing the loop bound on  `calc_grads_thread_baseline_nn`.
+4.  Clarifications on how to implement each version of `calc_grads_thread_baseline`.
+5.  Clarified several of the questions.
  
 ## New Command `--run-by-proxy`
 
@@ -48,11 +50,11 @@ Multithreading introduces the possibility for a new and really annoying bugs.  I
 
 This means that your program can run correctly one time and incorrectly next.  If this occurs, you are not losing your mind (although it may feel that way).
 
-These intermittent failures are often always due to two threads sharing data without using a lock to ensure that only one thread is accessing the data at one time.
+These intermittent failures are almost always due to two threads sharing data without using a lock to ensure that only one thread is accessing the data at one time.
 
 ### Many Tools Don't Fully Support Threads
 
-First,  `gprof` doesn't work on with multi-threaded programs. 
+First, `gprof` doesn't work on with multi-threaded programs. 
 
 Second, Moneta's cache model is not multithread-aware, so the color coding for the traces for hits vs. misses and the hit and miss rates are not accurate.  
 
@@ -70,7 +72,7 @@ For this project, we can get a decent approximation by running running each func
 
 ### Parallelize fc_layer_t::calc_grads()
 
-To get you started, we will walk you through the process for parallelizing `fc_layer_t::calc_grads()`.  Please see the slides in the lab repo for more details.  They contain detailed description of how the code works.
+To get you started, we will walk you through the process for parallelizing `fc_layer_t::calc_grads()`.  Please see the slides and video from lecture for an example of how to use OpenMP to multithread loops.
 
 Unlike the previous labs, we have provided a baseline implementation  in `opt_cnn.hpp`.  It is called `calc_grads_thread_baseline`.  In the starter code it's called immediately by `calc_grads`.  If you have already modified `fc_layer_t::calc_grads` you will need to modify your code so it is possible to select `calc_grads_thread_baseline` as the implementation to use.
 
@@ -96,27 +98,16 @@ First, (if you haven't already) replicate the structure in `fc_layer_t::activate
 * `calc_grads_thread_baseline_n()`  selectable with `--param1 4`
 * `calc_grads_thread_baseline_i()`  selectable with `--param1 5`
 
-Then change `OMP_NUM_THREADS` to 2 in `config.env`. 
 
 #### Implement calc_grads_thread_baseline_nn()
 
-Modify `calc_grads_thread_baseline_nn()` to add multithreading to the `nn` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `nn` for loop.  When your code finishes running, you will notice that you failed multiple regression tests.  This is because by parallelizing the `nn` loop, multiple threads attempt to write to the same location in `grads_out`.
+Modify `calc_grads_thread_baseline_nn()` to add multithreading to the `nn` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `nn` for loop.
 
-We will fix this in two stages:
-
-**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `nn` for loop. You can see an example of this in `example/stabilize.cpp` line 395. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`. Do not forget to clear it just like the example does on line 396. Then, in the inner most loop (the `i` loop), change `grads_out` to be your new local tensor that each thread will create.
-
-This enables each thread to accumulate their results locally. Thereby eliminating the race condition causing errors. However, we now need to combine the results from each thread.
-
-**Stage 2** At the bottom of the `nn` for loop, add a critical section and create two nested for loops to loop through `out.size.b` and `grads_out.size.x`. Notice that we don't loop through `out.size.x` as well. This is because we only need to accumulate the results into `grads_out` and `n` is not used to index into `grads_out`. 
-
-Inside the nested for loop you just created, accumulate the results of each thread (stored in their local tensors you creaded in stage 1) into `grads_out`. This will look very similar to `example/stabilize.cpp` lines 419-426. 
-
-Once you have made your changes, run the code locally and verify that you pass all the regression tests. If you do not pass, refer back to the lecture slides, discussion slides, example in `example/stabilize.cpp` lines 393 - 430, and help from the staff during office hours or lab hours. Once you have verified that your code is correct and passes the regression tests, submit to the autograder. You will want to save the resulting benchmark.csv file for the worksheet.
+Once you have made your changes, run the code locally and verify that you pass all the regression tests.  If tdey do not pass, refer back to the lecture slides, discussion slides, example in `example/stabilize.cpp` lines 320 - 350 , and help from the staff during office hours or lab hours. Once you have verified that your code is correct and passes the regression tests, submit to the autograder. You will want to save the resulting `cnn.csv` file for the worksheet.
 
 #### Implement calc_grads_thread_baseline_b()
 
-Modify `calc_grads_thread_baseline_b()` to add multithreading to the `b` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `b` for loop. You will notice that you passed the regressions test! There is no need to fix any race condition here as each thread is accumulating its result into a different address of grads_out.
+Modify `calc_grads_thread_baseline_b()` to add multithreading to the `b` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `b` for loop. You will notice that you passed the regressions test! There is no need to fix any race condition here as each thread is accumulating its result into a different address of `grads_out`.
 
 #### Implement  calc_grads_thread_baseline_n()
 
@@ -146,17 +137,17 @@ When your code finishes running, you will notice that you failed multiple regres
 
 We will fix this in two stages:
 
-**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `n` for loop. You can see an example of this in `exmaple/stabilize.cpp` line 395. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`. Do not forget to clear it just like the example does on line 396. Then, in the inner most loop (the `i` loop), change `grads_out` to be your new local tensor that each thread will create.
+**Stage 1** Add a local tensor the same size as `grads_out` at the top of the `n` for loop. You can see an example of this in `example/stabilize.cpp` line 395. The example creates a tensor of type double with the same size as `output`. You will do the same except the tensor size will be the same size as `grads_out`.  Call it `_grads_out`.  Do not forget to clear it just like the example does on line 396 of `stabilize.cpp`.  Then, in the inner-most loop (the `i` loop), change `grads_out` to `_grads_out` that each thread will create.
 
 This enables each thread to accumulate their results locally. Thereby eliminating the race condition causing errors. However, we now need to combine the results from each thread.
 
-**Stage 2** At the bottom of the `n` for loop, add a critical section and create a for loops to loop through `grads_out.size.x`. Notice that we don't loop through `out.size.x` or `out.size.b` as well. We exclude `out.size.x` because we only need to accumulate the results into `grads_out` and `n` is not used to index into `grads_out`. We exclude `out.size.b` because we only need to accumulate the result that the threads were individually working on, and they were all already working on the same `b` because we multithreaded the `n` loop, which is inside the `b` loop. 
+**Stage 2** At the bottom (but still inside) of the `n` for loop, add a critical section and create a for loops to loop through the first coordinate of `_grads_out` and `_grad_out` because `i` is the only index that the `n` loop uses to update `_grads_out` 
 
-Inside the for loop you just created, accumulate the results of each thread (stored in their local tensors you creaded in stage 1) into `grads_out`. This will look very similar to `exmaple/stabilize.cpp` lines 419-426. 
+Inside the for loop you just created, accumulate the results of each thread (stored in `_grads_out` ) into `grads_out`. This will look very similar to `example/stabilize.cpp` lines 419-426 (although that code needs two index variable, `offset_x` and `offset_y` for correctnes).
 
 #### Implement calc_grads_thread_baseline_i()
 
-Modify `calc_grads_thread_baseline_i()`  to add multithreading to the `i` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `i` for loop. You will notice that you passed the regressions test! There is no need to fix any race condition here as each thread is accumulating its result into a different address of grads_out.
+Modify `calc_grads_thread_baseline_i()`  to add multithreading to the `i` loop and run it again. You can do this by adding `#pragma omp parallel for` on the line before the `i` for loop. You will notice that you passed the regressions test! There is no need to fix any race condition here as each thread is accumulating its result into a different address of `grads_out`.
 
 #### Compare Performance
 
@@ -172,7 +163,7 @@ CMD_LINE_ARGS=--test-layer 14 --function calc_grads  --stat-set PE.cfg --stat mi
 
 This will run all 5 implementations of `calc_grads()` with 1 thread on layer 14 (the largest `fc_layer_t`).
 
-Starting with `--stat-set PE.cfg`, it also sets up some performance counters to measure the components of the performance equation and cache performance.  The data can be a little confusing, so here's what the columns mean.  The first 8 are our focus:
+Starting with `--stat-set PE.cfg`, the command line also sets up some performance counters to measure the components of the performance equation and cache performance.  The data can be a little confusing, so here's what the columns mean.  The first 7 are our focus:
 
 | Column name | Meaning                               | 
 |-------------|---------------------------------------|
@@ -244,11 +235,6 @@ mininet|4.0                  |4.0        |2.0 |1.0   |1.0   |1.0   |layer[14]->c
 mininet|4.0                  |4.0        |3.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |3.48e+08|4.79e+08|0.154  |
 mininet|4.0                  |4.0        |4.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |6.94e+08|1.14e+09|0.363  |
 mininet|4.0                  |4.0        |5.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |4.15e+08|4.42e+08|0.169  |
-mininet|4.0                  |8.0        |1.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |1.35e+09|8.82e+08|0.268  |
-mininet|4.0                  |8.0        |2.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |2.14e+08|2.76e+08|0.0873 |
-mininet|4.0                  |8.0        |3.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |3.53e+08|7.52e+08|0.24   |
-mininet|4.0                  |8.0        |4.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |7.12e+08|1.62e+09|0.523  |
-mininet|4.0                  |8.0        |5.0 |1.0   |1.0   |1.0   |layer[14]->calc_grads  fc_layer_t|calc_grads|14.0 |fc_layer_t|5.0 |2.69e+08|4.63e+08|0.23   |
 ```
   
 **NOTE** The statistics are _per thread_.  Hence you'll notice that the `IC` values drops by roughly 1/2 between 1 thread and 2.
@@ -303,16 +289,18 @@ Generate a Moneta trace for each implementation running with 4 threads.   You ca
 
 1. Set `--scale 0` to `cnn.exe` (i.e., after the `--`) so the function executes exactly once.
 2. Pass `--main none` to `mtrace` (i.e., before the `--`) so `mtrace` won't start tracing until we call `START_TRACE()`.
-3. Pass `--trace <name>` to `mtrace` with a different `<name>` for each trace.  Use a descriptive name that well let you tell which trace is for which implementation. When you specify `<name>`, you are actually only providing an initial name. `NEW_TRACE()` sets a more descriptive name in `opt_cnn.hpp`
-4. Run one implementation at a time.
+3. Pass `--trace none` to `mtrace`.  
+4. Run one function at a time.
 5. Only run for 4 threads.
 6. You might want to pass `--stats-file none.csv` to `cnn.exe` so your other `.csv` files don't get overwritten.
 
-You should end up with 5 traces.  They will all terminate early after collecting several million memory operations.  This is fine.
+Number 3 above assumes you replicated the code in `activate()` in your `calc_grads()` so that it calls `NEW_TRACE()`.  The argument to `NEW_TRACE()` will be the name of the tracefile you should use.
+
+Each run will terminate early after collecting several million memory operations.  This is fine.
 
 Several of these questions ask you to estimate the size of different regions of data.  These number just need to be approximate.  A good way to measure them is to compare them to the green scale bar that appears at the lower-left of the Moneta trace window.  It's the size of the L1 cache (64KB in our case).
 
-#### P4 (2pt): Consider `calc_grads_thread_baseline_b()`.  Use the Moneta trace to determine approximately how many KBs of `grads_out` each thread accesses and roughly how many times it accesses those bytes.  Provide and label one screen capture showing how you arrived at these values.
+#### P4 (2pt): Consider `calc_grads_thread_baseline_b()`.  Use its Moneta trace to determine approximately how many KBs of `grads_out` each thread accesses and roughly how many times it accesses those bytes.  Provide and label one screen capture showing how you arrived at these values.
 
 ```
 How many KB?
@@ -334,7 +322,7 @@ How many updates (approximately, circle one):  1    16   32   64   Too many
 
 ```
 
-#### P5 (2pt): Consider `calc_grads_thread_baseline_b()`.  Provide a screen capture that shows the access patterns of all four threads for the `weights`.  Circle a group of accesses performed by one thread.  Approximately how large is `weights` tensor in KB?  How many times is each element accessed (across all threads)?
+#### P5 (2pt): Consider `calc_grads_thread_baseline_b()`.  Provide a screen capture that shows the access patterns of all four threads for the `weights`.  Circle a group of accesses performed by one thread.  Approximately how large is the `weights` tensor in KB?  How many times is each element accessed (across all threads)?
 
 ```
 How big is weights (KB)?
@@ -370,13 +358,15 @@ How many times is each element accessed?
 
 ```
 
+In the questions below assume that each thread is running on its own processor.
 
-#### P7 (2pts) Consider `calc_grads_thread_baseline_n()`, and assume that each thread is running on its own processor.  How much of the `weights` tensor does each thread access repeatedly before moving onto more data (i.e., how big is it's working set)?  How many times does it accesses each entry of the tensor? Provide and label a Moneta screen capture that supports your conclusions. 
+#### P7 (2pts) Consider `calc_grads_thread_baseline_n()`.  How much of the `weights` tensor does each thread access repeatedly before moving onto more data (i.e., how big is it's working set)?  How many times does it accesses each entry of the tensor? Provide and label a Moneta screen capture that supports your conclusions. 
 
 ```
 How big is the working set?
 
-How many accesses/tensor item?
+How many accesses per tensor entry?
+
 
 
 
@@ -395,7 +385,7 @@ How many accesses/tensor item?
 
 
 
-#### P8 (2pts) Consider `calc_grads_thread_baseline_n()`.  What's the ratio of IC on the baseline to IC on `calc_grads_thread_baseline_n()` with 1 thread?  Paste in a copy of the C++ code that corresponds to the extra instructions.
+#### P8 (2pts) Consider `calc_grads_thread_baseline_n()`.  What's the ratio of IC on `calc_grads_thread_baseline()` to IC on `calc_grads_thread_baseline_n()` with 1 thread?  Paste in a copy of the C++ code that corresponds to the extra instructions.
 
 ```
 IC(baseline)/IC(n-loop) = 
