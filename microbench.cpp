@@ -4,54 +4,17 @@
 #include"omp.h"
 #include <unordered_set>
 
-uint *openmp_threads(unsigned long int size) {
-	uint * array = new uint[size];
-	for(uint i = 0; i < size; i++) {
-		array[i] = 0;
-	}
-	
-	
-	for (uint j = 0; j < 3; j++) {
-#pragma omp parallel for 
-		for(uint i= 0 ; i < size; i++) {
-			array[i]+= i*j;
-		}
-	}
-	
-	return array;
-}
-uint *openmp_threads_simd(unsigned long int size) {
-	uint * array = new uint[size];
-#pragma omp parallel for  simd
-	for(uint i = 0; i < size; i++) {
-		array[i] = 0;
-	}
-	
-
-	for (uint j = 0; j < 3; j++) {
-#pragma omp parallel for  simd
-		for(uint i= 0 ; i < size; i++) {
-			array[i]+= i*j;
-		}
-	}
-	
-	return array;
-}
-uint *openmp_simd(unsigned long int size) {
+uint *serial(unsigned long int size) {
 	DUMP_START_ALL("alloc", false);
 	uint * array = new uint[size];
 	DUMP_STOP("alloc");
 	DUMP_START_ALL("clear", false);
-#pragma omp simd
 	for(uint i = 0; i < size; i++) {
 		array[i] = 0;
 	}
-	
 	DUMP_STOP("clear");
 	DUMP_START_ALL("compute", false);
-
 	for (uint j = 0; j < 3; j++) {
-#pragma omp simd
 		for(uint i= 0 ; i < size; i++) {
 			array[i] += i*j;
 		}
@@ -60,6 +23,11 @@ uint *openmp_simd(unsigned long int size) {
 	
 	return array;
 }
+
+
+
+
+
 uint *serial_improved(unsigned long int size) {
 	DUMP_START_ALL("alloc", false);
 	uint * array = new uint[size];
@@ -93,17 +61,38 @@ uint *serial_improved(unsigned long int size) {
 	return array;
 }
 
-uint *serial(unsigned long int size) {
+uint *openmp_threads(unsigned long int size) {
+	uint * array = new uint[size];
+	for(uint i = 0; i < size; i++) {
+		array[i] = 0;
+	}
+	
+	
+	for (uint j = 0; j < 3; j++) {
+#pragma omp parallel for 
+		for(uint i= 0 ; i < size; i++) {
+			array[i]+= i*j;
+		}
+	}
+	
+	return array;
+}
+
+uint *openmp_simd(unsigned long int size) {
 	DUMP_START_ALL("alloc", false);
 	uint * array = new uint[size];
 	DUMP_STOP("alloc");
 	DUMP_START_ALL("clear", false);
+#pragma omp simd
 	for(uint i = 0; i < size; i++) {
 		array[i] = 0;
 	}
+	
 	DUMP_STOP("clear");
 	DUMP_START_ALL("compute", false);
+
 	for (uint j = 0; j < 3; j++) {
+#pragma omp simd
 		for(uint i= 0 ; i < size; i++) {
 			array[i] += i*j;
 		}
@@ -113,6 +102,24 @@ uint *serial(unsigned long int size) {
 	return array;
 }
 
+
+uint *openmp_threads_simd(unsigned long int size) {
+	uint * array = new uint[size];
+#pragma omp parallel for  simd
+	for(uint i = 0; i < size; i++) {
+		array[i] = 0;
+	}
+	
+
+	for (uint j = 0; j < 3; j++) {
+#pragma omp parallel for  simd
+		for(uint i= 0 ; i < size; i++) {
+			array[i]+= i*j;
+		}
+	}
+	
+	return array;
+}
 uint *gcc_simd(unsigned long int size) {
 	typedef uint v8ui __attribute__ ((vector_size (32)));
 	
@@ -124,6 +131,38 @@ uint *gcc_simd(unsigned long int size) {
 	}
 	
 	for (uint j = 0; j < 3; j++) {
+		for(uint i= 0 ; i < size; i+=8) {
+			v8ui *v = (v8ui*)&array[i];
+			v8ui t = {(i)*j,
+				  (i+1)*j,
+				  (i+2)*j,
+				  (i+3)*j,
+				  (i+4)*j,
+				  (i+5)*j,
+				  (i+6)*j,
+				  (i+7)*j};
+		 
+			*v += t; //array[i]+= i*j;
+		}
+	}
+	
+	return array;
+}
+
+
+
+uint *openmp_threads_gcc_simd(unsigned long int size) {
+	typedef uint v8ui __attribute__ ((vector_size (32)));
+	
+	uint * array = (uint*)aligned_alloc(32, size*sizeof(uint));
+	assert(sizeof(uint)==4);
+	for(uint i = 0; i < size; i++) {
+		array[i] = 0;
+	}
+	
+
+	for (uint j = 0; j < 3; j++) {
+#pragma omp parallel for 
 		for(uint i= 0 ; i < size; i+=8) {
 			v8ui *v = (v8ui*)&array[i];
 			v8ui t = {(i)*j,
@@ -158,38 +197,6 @@ uint *malloc_test(unsigned long int size) {
 		}
 	}
 	return NULL;
-}
-
-
-
-uint *openmp_threads_gcc_simd(unsigned long int size) {
-	typedef uint v8ui __attribute__ ((vector_size (32)));
-	
-	uint * array = (uint*)aligned_alloc(32, size*sizeof(uint));
-	assert(sizeof(uint)==4);
-	for(uint i = 0; i < size; i++) {
-		array[i] = 0;
-	}
-	
-
-	for (uint j = 0; j < 3; j++) {
-#pragma omp parallel for 
-		for(uint i= 0 ; i < size; i+=8) {
-			v8ui *v = (v8ui*)&array[i];
-			v8ui t = {(i)*j,
-				  (i+1)*j,
-				  (i+2)*j,
-				  (i+3)*j,
-				  (i+4)*j,
-				  (i+5)*j,
-				  (i+6)*j,
-				  (i+7)*j};
-		 
-			*v += t; //array[i]+= i*j;
-		}
-	}
-	
-	return array;
 }
 
 

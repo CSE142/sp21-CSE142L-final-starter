@@ -13,7 +13,9 @@ Watch here for answers to FAQs and notifications about important updates.
 3.  Add instructions for fixing the loop bound on  `calc_grads_thread_baseline_nn`.
 4.  Clarifications on how to implement each version of `calc_grads_thread_baseline`.
 5.  Clarified several of the questions.
- 
+6.  Update to `Makefile` to make regressions work properly.
+7.  Fixed typo on P6 about which problems to look at. 
+
 ## New Command `--run-by-proxy`
 
 Introduce a brand new option for `runlab`:  `--run-by-proxy`!
@@ -345,7 +347,7 @@ How many times is each element accessed?
                      
 ```
 
-#### P6 (2pt): How does what you learned in answering P5 and P6 explain the high CPI for `calc_grads_thread_baseline_b()`?  (2 sentences max)
+#### P6 (2pt): How does what you learned in answering P4 and P5 explain the high CPI for `calc_grads_thread_baseline_b()`?  (2 sentences max)
 
 ```
 

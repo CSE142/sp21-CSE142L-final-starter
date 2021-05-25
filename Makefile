@@ -43,7 +43,8 @@ custom.csv: custom.exe
 	pretty-csv $@
 	if [ -e gmon.out ]; then gprof $< > custom.gprof; fi
 
-microbench.csv: microbench.exe
+$(BUILD)microbench.o: OPTIMIZE=$(MICROBENCH_OPTIMIZE)
+microbench.csv: microbench.exe	
 	./microbench.exe --stats-file $@ $(MICROBENCH_CMD_LINE_ARGS)
 	pretty-csv $@
 
