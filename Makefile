@@ -1,4 +1,4 @@
-default: benchmark.csv run_tests.exe regressions.out cnn.csv cnn.exe
+default: benchmark.csv run_tests.exe regressions.out regressions.json cnn.csv cnn.exe
 OPTIMIZE=-march=x86-64 -O3
 CLEANUP=trace_traceme.hdf5 trace_cnn.hdf5
 COMPILER=gcc-8
@@ -51,10 +51,10 @@ microbench.csv: microbench.exe
 run_tests.exe:  $(BUILD)parameters.o 
 run_tests.o: $(BUILD)opt_cnn.hpp  $(BUILD)parameters.hpp
 
-.PHONY: regressions.out
+.PHONY: regressions.out regressions.json
 regressions.out regressions.json: ./run_tests.exe
-	-./run_tests.exe --gtest_output=json:regressions.json > $@ 
-	tail -1 $@
+	-./run_tests.exe $(IMPL_SEL_ARGS) --gtest_output=json:regressions.json > regressions.out
+	tail -6 regressions.out
 
 
 activate.mtrace: cnn.exe
