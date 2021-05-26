@@ -23,7 +23,7 @@ $(BUILD)cnn.o: $(BUILD)opt_cnn.hpp  $(BUILD)opt_cnn.hpp $(BUILD)canary.hpp $(BUI
 
 benchmark.csv: cnn.exe
 	rm -f gmon.out
-	./cnn.exe --run-canary --stats-file $@ --scale 8 --batch-size 4 --function train_model $(BENCHMARK_CMD_LINE) $(IMPL_SEL_ARGS)
+	./cnn.exe --run-canary --stats-file $@ --scale 4 --batch-size 4 --function train_model $(BENCHMARK_CMD_LINE)
 	pretty-csv $@
 	if [ -e gmon.out ]; then gprof $< > benchmark.gprof; fi
 
