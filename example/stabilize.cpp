@@ -346,8 +346,9 @@ void do_stabilize_tile_y_1_omp_simple(const tensor_t<double> & images, tensor_t<
 				}
 			}
 		}
-	}
+       }
 }
+
 void do_stabilize_tile_y_1_omp_critical(const tensor_t<double> & images, tensor_t<double> & output, int TILE_SIZE)
 {
 	for (int this_frame = 1; this_frame < images.size.b; this_frame++) {

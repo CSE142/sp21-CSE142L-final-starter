@@ -21,6 +21,10 @@ $(BUILD)model.o:  $(BUILD)opt_cnn.hpp
 
 $(BUILD)cnn.o: $(BUILD)opt_cnn.hpp  $(BUILD)opt_cnn.hpp $(BUILD)canary.hpp $(BUILD)model.hpp $(BUILD)reps.hpp $(BUILD)parameters.hpp
 
+OMP_THREAD_COUNT?=1
+export OMP_THREAD_COUNT
+OMP_NUM_THREADS=$(OMP_THREAD_COUNT)
+export OMP_NUM_THREADS
 benchmark.csv: cnn.exe
 	rm -f gmon.out
 	./cnn.exe --run-canary --stats-file $@ --scale 4 --batch-size 4 --function train_model $(BENCHMARK_CMD_LINE)
@@ -44,6 +48,7 @@ custom.csv: custom.exe
 	if [ -e gmon.out ]; then gprof $< > custom.gprof; fi
 
 $(BUILD)microbench.o: OPTIMIZE=$(MICROBENCH_OPTIMIZE)
+$(BUILD)microbench.s: OPTIMIZE=$(MICROBENCH_OPTIMIZE)
 microbench.csv: microbench.exe	
 	./microbench.exe --stats-file $@ $(MICROBENCH_CMD_LINE_ARGS)
 	pretty-csv $@

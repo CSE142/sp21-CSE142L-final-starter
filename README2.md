@@ -16,6 +16,7 @@ Watch here for answers to FAQs and notifications about important updates.
 6.  Update to `Makefile` to make regressions work properly.
 7.  Fixed typo on P6 about which problems to look at. 
 8.  Added note about running `make cnn.exe` to build the executable to generate Moneta traces.
+9.  Added note about setting thread count for `benchmark.csv`.  See "Setting Thread Count" below.
 
 ## New Command `--run-by-proxy`
 
@@ -70,6 +71,18 @@ Finally, our performance counting code only collects data for one thread.  For O
 Gprof's non-support of multi-threaded code presents a particular problem:  You need to know where your code is spending the most time, so you can focus your optimization efforts.  How else will Amdahl be appeased?
 
 For this project, we can get a decent approximation by running running each function in each layer once and adding up the execution time.  This number should approximate the total runtime of `train_model`, and you can use the latencies of each function to guage how important it is.  To make this work, you'll need to pass `--scale 0`, so each function runs exactly once.
+
+## Setting Thread Count
+
+There are a couple ways to conttrol how many threads get run.  First, you can use the `--threads` command line option (e.g., `--threads 1 2 4`) will run your experiments with 1, 2, and 4 threads.  This also sets the global `g_thread_count` variable which you can use in your own code like you used `g_param1_value` etc.  The starter version of `opt_cnn.hpp` has an example of setting thread count for `opt_fc_layer_t::activate()`.
+
+Second, you can `#include<omp.h>` and then call `omp_set_num_threads()` with an integer argument to use that many threads (e.g., `omp_set_num_threads(2)`).   This is what `cnn.cpp` does in `main()` to implement `--threads`.  However, you can, if it helps your performance, call it whetever you want.  For instance, you could run `fc_layer_t::activate` with 4 throads and `fc_layer_t::calc_grads` with 2 threads.
+
+The third method is by setting `OMP_THREAD_COUNT` in `config.env` (e.g, `OMP_THREAD_COUNT=4`).
+
+When the autograder runs your code to generate `benchmark.csv` it ignores `IMPL_SEL_OPTIONS` (which is where `--threads` would usually go), so you'll either need to call `opm_set_num_threads()` in your optimized functions or set `OMP_THREAD_COUNT` in `config.env`.
+
+
 
 ## Tasks To Perform
 

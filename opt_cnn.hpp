@@ -2,6 +2,7 @@
 #include"CNN/canela.hpp"
 #include"parameters.hpp"
 #include"pin_tags.h"
+#include"omp.h"
 
 #define DUMP_TENSOR_START(TAG, T) DUMP_START(TAG, (void *) &((T).data[0]), (void *) &((T).data[(T).element_count() - 1]), true)
 #define DUMP_TENSOR_STOP(TAG) DUMP_STOP(TAG)
@@ -27,13 +28,14 @@ public:
 #define FC_ACTIVATE_IMPLEMENTATION g_param1_value
 //#define FC_ACTIVATE_IMPLEMENTATION 1
 //#define CALC_GRADS_IMPLEMENTATION g_param1_value
-
+#define FC_ACTIVATE_THREAD_COUNT g_thread_count
+	
 	void activate( tensor_t<double>& in ) {
 		
 		std::stringstream ss;
 		
 		ss << g_function_name << "_I" << FC_ACTIVATE_IMPLEMENTATION << "_" << g_param2_value << "_" << g_param3_value << "_" << g_param4_value;
-		
+		omp_set_num_threads(FC_ACTIVATE_THREAD_COUNT);
 		NEW_TRACE(ss.str().c_str());
 		START_TRACE();
 		DUMP_TENSOR_START("weights", weights);
