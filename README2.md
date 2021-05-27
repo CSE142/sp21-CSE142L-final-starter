@@ -17,6 +17,7 @@ Watch here for answers to FAQs and notifications about important updates.
 7.  Fixed typo on P6 about which problems to look at. 
 8.  Added note about running `make cnn.exe` to build the executable to generate Moneta traces.
 9.  Added note about setting thread count for `benchmark.csv`.  See "Setting Thread Count" below.
+10.  Fixed the cache size.  It's actually 32KB.  IF you've done the problems using 64KB, just say so.
 
 ## New Command `--run-by-proxy`
 
@@ -314,7 +315,7 @@ Number 3 above assumes you replicated the code in `activate()` in your `calc_gra
 
 Each run will terminate early after collecting several million memory operations.  This is fine.
 
-Several of these questions ask you to estimate the size of different regions of data.  These number just need to be approximate.  A good way to measure them is to compare them to the green scale bar that appears at the lower-left of the Moneta trace window.  It's the size of the L1 cache (64KB in our case).
+Several of these questions ask you to estimate the size of different regions of data.  These number just need to be approximate.  A good way to measure them is to compare them to the green scale bar that appears at the lower-left of the Moneta trace window.  It's the size of the L1 cache (32KB in our case).
 
 #### P4 (2pt): Consider `calc_grads_thread_baseline_b()`.  Use its Moneta trace to determine approximately how many KBs of `grads_out` each thread accesses and roughly how many times it accesses those bytes.  Provide and label one screen capture showing how you arrived at these values.
 
