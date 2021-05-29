@@ -18,6 +18,7 @@ Watch here for answers to FAQs and notifications about important updates.
 8.  Added note about running `make cnn.exe` to build the executable to generate Moneta traces.
 9.  Added note about setting thread count for `benchmark.csv`.  See "Setting Thread Count" below.
 10.  Fixed the cache size.  It's actually 32KB.  IF you've done the problems using 64KB, just say so.
+11.  Clarified when the regressions run and how to run them (in discussion of the `n` loop implementation)
 
 ## New Command `--run-by-proxy`
 
@@ -104,8 +105,7 @@ Which means that your implementation matches the result of the
 `calc_grads_thread_baseline` (which is no surprise because you have not edited `calc_grads_thread_baseline`).
 
 These tests are your best friend, since they provide a quick and easy
-way of telling whether your code is correct.  `runlab` runs the tests
-every time, and if you the last line shows any failures, you should
+way of telling whether your code is correct.  `runlab -- make` (with no `cnn.csv` or `benchmark.csv`)  or `runlab -- make regressions.out` runs the tests, and the last line shows any failures, you should
 look at `regressions.out` for a full report.
 
 First, (if you haven't already) replicate the structure in `fc_layer_t::activate()` to let you select among several implementations of `fc_layer_t::calc_grads()`.  Make four copies of the `calc_grads_thread_baseline()` called:
@@ -148,7 +148,7 @@ Rewrite the code like this to make it clear that the loop bound is constant.
 ...
 ```
 
-It should build.
+It should build.  Now, make sure you have `OMP_THREAD_COUNT=4` in your `config.env` on `--threads 4` in `IMPL_SEL_ARGS` and run it with `runlab --run-by-proxy -- make`.
 
 When your code finishes running, you will notice that you failed multiple regression tests. This is because by parallelizing the `n` loop, multiple threads attempt to write to the same location in `grads_out`.
 
