@@ -373,6 +373,7 @@ int main(int argc, char **argv) {
 
 	for(auto & thread_count: omp_threads_values ) {
 		theDataCollector->register_tag("omp_threads", thread_count);
+		g_thread_count = thread_count;
 		omp_set_num_threads(thread_count);
 		std::cout << "Setting threadcount to " << thread_count <<"\n";	for(auto & param1_value : param1_values ) {
 			g_param1_value = param1_value;
